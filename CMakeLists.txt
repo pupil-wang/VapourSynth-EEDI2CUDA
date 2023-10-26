@@ -3,16 +3,19 @@ project(VapourSynth-EEDI2CUDA CUDA)
 
 include(FetchContent)
 FetchContent_Declare(VapourSynth
-    URL             https://github.com/vapoursynth/vapoursynth/archive/refs/tags/R55-API4-RC1.zip
-    URL_HASH    MD5=96E8740B1B4E47A3BECF34CFC11CF539)
+    URL https://github.com/vapoursynth/vapoursynth/archive/refs/tags/R55-API4-RC1.zip
+    URL_HASH MD5=96E8740B1B4E47A3BECF34CFC11CF539)
 FetchContent_Declare(AviSynthPlus
-    URL             https://github.com/AviSynth/AviSynthPlus/archive/refs/tags/v3.7.0.zip
-    URL_HASH    MD5=45239C3AB7750730DAB672175B47D357)
+    URL https://github.com/AviSynth/AviSynthPlus/archive/refs/tags/v3.7.0.zip
+    URL_HASH MD5=45239C3AB7750730DAB672175B47D357)
 FetchContent_GetProperties(VapourSynth)
+
 if(NOT VapourSynth_POPULATED)
     FetchContent_Populate(VapourSynth)
 endif()
+
 FetchContent_GetProperties(AviSynthPlus)
+
 if(NOT AviSynthPlus_POPULATED)
     FetchContent_Populate(AviSynthPlus)
 endif()
@@ -28,13 +31,16 @@ add_library(EEDI2CUDA SHARED)
 target_sources(EEDI2CUDA PRIVATE
     common.h eedi2.cuh utils.cuh
     pipeline.h instance.h)
-if (ENABLE_VAPOURSYNTH_API3_BINDING)
+
+if(ENABLE_VAPOURSYNTH_API3_BINDING)
     target_sources(EEDI2CUDA PRIVATE vs3.cu)
 endif()
-if (ENABLE_VAPOURSYNTH_API4_BINDING)
+
+if(ENABLE_VAPOURSYNTH_API4_BINDING)
     target_sources(EEDI2CUDA PRIVATE vs4.cu)
 endif()
-if (ENABLE_AVISYNTHPLUS_BINDING)
+
+if(ENABLE_AVISYNTHPLUS_BINDING)
     target_sources(EEDI2CUDA PRIVATE avs+.cu)
 endif()
 
@@ -54,16 +60,18 @@ target_compile_options(EEDI2CUDA PRIVATE
     --no-host-device-initializer-list
     --display-error-number
     --diag-suppress 177,186,445)
+
 if(MSVC)
     target_compile_options(EEDI2CUDA PRIVATE "-Xcompiler=/W4 /wd4297 /wd4458")
 else()
     target_compile_options(EEDI2CUDA PRIVATE "-Xcompiler=-Wno-terminate")
 endif()
+
 set_target_properties(EEDI2CUDA PROPERTIES CUDA_ARCHITECTURES "50-virtual")
 
 find_package(Git REQUIRED)
 execute_process(
-    COMMAND ${GIT_EXECUTABLE} describe --tags --long
+    COMMAND ${GIT_EXECUTABLE} describe --tags --long --always
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE VCS_TAG)
 string(STRIP ${VCS_TAG} VCS_TAG)
